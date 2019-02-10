@@ -1,0 +1,5 @@
+package CGProject;
+
+public enum Tools {
+    SELECT, MOVE, ROTATE, SCALE, LINE, RECTANGLE, ELLIPSE, CIRCLE, TRIANGLE, COMPLEX1
+}
