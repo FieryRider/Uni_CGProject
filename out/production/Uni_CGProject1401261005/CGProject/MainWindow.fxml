@@ -33,8 +33,8 @@
                 <Button fx:id="circleBtn" text="Circle" onAction="#handleCircleButtonAction" />
                 <Button fx:id="triangleBtn" text="Triangle" onAction="#handleTriangleButtonAction" />
                 <Button fx:id="complexOneBtn" text="Complex1" onAction="#handleComplexOneButtonAction" />
-                <Slider fx:id="strokeTransparencySlider" min="0" max="100" value="100" onDragDone="#handleStrokeTransparencySlider"/>
-                <Slider fx:id="fillTransparencySlider" min="0" max="100" value="0" onDragDone="#handleFillTransparencySlider"/>
+                <Slider fx:id="strokeOpacitySlider" min="0" max="100" value="100" onDragDone="#handleStrokeOpacitySlider"/>
+                <Slider fx:id="fillOpacitySlider" min="0" max="100" value="0" onDragDone="#handleFillOpacitySlider"/>
                 <ChoiceBox fx:id="lineWidthChoiceBox" value="1" onAction="#handleLineWidthChoiceBox">
                     <String fx:value="1"/>
                     <String fx:value="2"/>

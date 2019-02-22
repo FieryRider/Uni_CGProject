@@ -5,6 +5,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Slider;
@@ -29,10 +31,10 @@ public class Controller {
     private Pane drawingPane;
 
     @FXML
-    private Slider strokeTransparencySlider;
+    private Slider strokeOpacitySlider;
 
     @FXML
-    private Slider fillTransparencySlider;
+    private Slider fillOpacitySlider;
 
     @FXML
     private ChoiceBox<String> lineWidthChoiceBox;
@@ -43,6 +45,10 @@ public class Controller {
     @FXML
     private ColorPicker fillColorPicker;
 
+    public void setTool(Tools tool) {
+        this.tool = tool;
+    }
+
     private Tools tool;
     private ArrayList<BaseShape> shapes = new ArrayList<>();
     private BaseShape selectedShape;
@@ -50,8 +56,6 @@ public class Controller {
     protected Color strokeColor;
     protected Color fillColor;
     protected int lineWidth;
-    protected int strokeTransparency;
-    protected int fillTransparency;
 
     private Vector2d mouseBeginLocation = new Vector2d();
     private Vector2d mouseEndLocation = new Vector2d();
@@ -86,10 +90,14 @@ public class Controller {
                     break;
                 case COMPLEX1:
                     Rectangle rectangle1 = new Rectangle(e.getX(), e.getY(), 0, 0);
-                    Circle circle1 = new Circle(e.getX(), e.getY(), 0);
+                    Line line1 = new Line(e.getX(), e.getY(), e.getX(), e.getY());
+                    Line line2 = new Line(e.getX(), e.getY(), e.getX(), e.getY());
+                    Line line3 = new Line(e.getX(), e.getY(), e.getX(), e.getY());
                     ArrayList<SimpleShape> simplShapes = new ArrayList<>();
                     simplShapes.add(new SimpleShape(rectangle1, ShapeType.RECTANGLE, strokeColor, fillColor, lineWidth));
-                    simplShapes.add(new SimpleShape(circle1, ShapeType.CIRCLE, strokeColor, fillColor, lineWidth));
+                    simplShapes.add(new SimpleShape(line1, ShapeType.LINE, strokeColor, fillColor, lineWidth));
+                    simplShapes.add(new SimpleShape(line2, ShapeType.LINE, strokeColor, fillColor, lineWidth));
+                    simplShapes.add(new SimpleShape(line3, ShapeType.LINE, strokeColor, fillColor, lineWidth));
                     shapes.add(new ComplexShape(simplShapes));
                     break;
             }
@@ -125,7 +133,6 @@ public class Controller {
                         if (!selectedShape.isComplex()) {
                             ((SimpleShape)selectedShape).translate((mouseEndLocation.x - mouseLastLocation.x), (mouseEndLocation.y - mouseLastLocation.y));
                         } else {
-                            System.out.println("asd");
                             ((ComplexShape)selectedShape).translate((mouseEndLocation.x - mouseLastLocation.x), (mouseEndLocation.y - mouseLastLocation.y));
                         }
                     }
@@ -156,6 +163,14 @@ public class Controller {
                             } else {
                                 selShape.scale(-0.005);
                             }
+                        } else {
+                            ComplexShape selShape = (ComplexShape)selectedShape;
+                            double centerToMouseLastLoc = Vector2d.length(Vector2d.sub(mouseLastLocation, selShape.getCenterPoint()));
+                            double centerToMouseEndLoc = Vector2d.length(Vector2d.sub(mouseEndLocation, selShape.getCenterPoint()));
+                            if (centerToMouseEndLoc > centerToMouseLastLoc)
+                                selShape.scale(0.005);
+                            else
+                                selShape.scale(-0.005);
                         }
                     }
                     break;
@@ -213,19 +228,24 @@ public class Controller {
                     Rectangle rectangle1 = new Rectangle(shapeBoundsBeginLocation.x, shapeBoundsBeginLocation.y,
                             (shapeBoundsEndLocation.x - shapeBoundsBeginLocation.x), (shapeBoundsEndLocation.y - shapeBoundsBeginLocation.y));
 
-
-                    double xDiameter1 = shapeBoundsEndLocation.x - shapeBoundsBeginLocation.x;
-                    double yDiameter1 = shapeBoundsEndLocation.y - shapeBoundsBeginLocation.y;
-                    double radius1 = (xDiameter1 < yDiameter1) ? (xDiameter1 / 2) : (yDiameter1 / 2);
-                    centerX = shapeBoundsBeginLocation.x + radius1;
-                    centerY = shapeBoundsBeginLocation.y + radius1;
-
-                    Circle circle1 = new Circle(centerX, centerY, radius1);
+                    Line line1 = new Line(shapeBoundsBeginLocation.x, shapeBoundsBeginLocation.y,
+                            (shapeBoundsBeginLocation.x + ((shapeBoundsEndLocation.x - shapeBoundsBeginLocation.x) / 2)),
+                            (shapeBoundsBeginLocation.y + ((shapeBoundsEndLocation.y  - shapeBoundsBeginLocation.y) / 2)));
+                    Line line2 = new Line((shapeBoundsBeginLocation.x + ((shapeBoundsEndLocation.x - shapeBoundsBeginLocation.x) / 2)),
+                            (shapeBoundsBeginLocation.y + ((shapeBoundsEndLocation.y - shapeBoundsBeginLocation.y) / 2)),
+                            shapeBoundsEndLocation.x, (shapeBoundsEndLocation.y - (shapeBoundsEndLocation.y - shapeBoundsBeginLocation.y)));
+                    Line line3 = new Line((shapeBoundsBeginLocation.x + ((shapeBoundsEndLocation.x - shapeBoundsBeginLocation.x) / 2)),
+                            (shapeBoundsBeginLocation.y + ((shapeBoundsEndLocation.y - shapeBoundsBeginLocation.y) / 2)),
+                            (shapeBoundsBeginLocation.x + ((shapeBoundsEndLocation.x - shapeBoundsBeginLocation.x) / 2)),
+                            shapeBoundsEndLocation.y
+                    );
 
 
                     ArrayList<SimpleShape> simplShapes = new ArrayList<>();
                     simplShapes.add(new SimpleShape(rectangle1, ShapeType.RECTANGLE, strokeColor, fillColor, lineWidth));
-                    simplShapes.add(new SimpleShape(circle1, ShapeType.CIRCLE, strokeColor, fillColor, lineWidth));
+                    simplShapes.add(new SimpleShape(line1, ShapeType.LINE, strokeColor, fillColor, lineWidth));
+                    simplShapes.add(new SimpleShape(line2, ShapeType.LINE, strokeColor, fillColor, lineWidth));
+                    simplShapes.add(new SimpleShape(line3, ShapeType.LINE, strokeColor, fillColor, lineWidth));
 
                     shapes.set((shapes.size() - 1), new ComplexShape(simplShapes));
                     break;
@@ -238,10 +258,14 @@ public class Controller {
 
         drawingPane.setOnMouseReleased(e -> {
             mouseLastLocationSet = false;
-            if (selectedShape.isComplex()) {
-                ((ComplexShape) selectedShape).updateBounds();
+            if (this.tool == Tools.SELECT) {
+                System.out.println("select");
             } else {
-                ((SimpleShape) selectedShape).updateBounds();
+                if (selectedShape.isComplex()) {
+                    ((ComplexShape) selectedShape).updateBounds();
+                } else {
+                    ((SimpleShape) selectedShape).updateBounds();
+                }
             }
         });
 /*        drawingPane.setOnMouseReleased(e -> {
@@ -286,12 +310,13 @@ public class Controller {
         shape.setOnMouseClicked(e -> {
             if (tool == Tools.SELECT) {
                 selectedShape = baseShape;
+                lineWidthChoiceBox.setValue(Integer.toString(selectedShape.getLineWidth()));
+                strokeColorPicker.setValue(selectedShape.getStrokeColor());
+                fillColorPicker.setValue(selectedShape.getFillColor());
             }
         });
 
         shape.setStroke(simpleShape.getStrokeColor());
-        System.out.println(simpleShape.getFillColor());
-        System.out.println(simpleShape.getStrokeColor());
         shape.setFill(simpleShape.getFillColor());
         shape.setStrokeWidth(simpleShape.getLineWidth());
 
@@ -312,7 +337,7 @@ public class Controller {
 
     public void onSave() {
         try {
-            FileOutputStream fos = new FileOutputStream("/home/ivailo/stuff/tmp/javaobjfile");
+            FileOutputStream fos = new FileOutputStream("javaobjfile");
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(shapes);
             oos.close();
@@ -326,7 +351,7 @@ public class Controller {
 
     public void onLoad() {
         try {
-            FileInputStream fis = new FileInputStream("/home/ivailo/stuff/tmp/javaobjfile");
+            FileInputStream fis = new FileInputStream("javaobjfile");
             ObjectInputStream ois = new ObjectInputStream(fis);
             shapes = (ArrayList) ois.readObject();
             ois.close();
@@ -387,23 +412,34 @@ public class Controller {
     }
 
     public void handleLineWidthChoiceBox(ActionEvent actionEvent) {
-        lineWidth = Integer.valueOf(lineWidthChoiceBox.getValue());
+        this.lineWidth = Integer.valueOf(lineWidthChoiceBox.getValue());
+        if (this.selectedShape != null)
+            this.selectedShape.setLineWidth(this.lineWidth);
     }
 
     public void handleStrokeColorPicker(ActionEvent actionEvent) {
-        strokeColor = strokeColorPicker.getValue();
+        this.strokeColor = strokeColorPicker.getValue();
+        if (this.selectedShape != null)
+            this.selectedShape.setStrokeColor(this.strokeColor);
     }
 
     public void handleFillColorPicker(ActionEvent actionEvent) {
-        fillColor = fillColorPicker.getValue();
+        this.fillColor = fillColorPicker.getValue();
+        if (this.selectedShape != null)
+            this.selectedShape.setFillColor(this.fillColor);
     }
 
-    public void handleStrokeTransparencySlider(DragEvent dragEvent) {
-        strokeTransparency = (int) strokeTransparencySlider.getValue();
-        strokeColor = new Color(strokeColor.getRed(), strokeColor.getGreen(), strokeColor.getBlue(), ((double) strokeTransparency / 100.0));
+    public void handleStrokeOpacitySlider(DragEvent dragEvent) {
+        int opacity = (int) strokeOpacitySlider.getValue();
+        this.strokeColor = new Color(this.strokeColor.getRed(), this.strokeColor.getGreen(), this.strokeColor.getBlue(), ((double) opacity / 100.0));
+        if (this.selectedShape != null)
+            this.selectedShape.setStrokeColor(this.strokeColor);
     }
 
-    public void handleFillTransparencySlider(DragEvent dragEvent) {
-        fillTransparency = (int) fillTransparencySlider.getValue();
+    public void handleFillOpacitySlider(DragEvent dragEvent) {
+        int opacity = (int) fillOpacitySlider.getValue();
+        this.fillColor = new Color(this.fillColor.getRed(), this.fillColor.getGreen(), this.fillColor.getBlue(), ((double) opacity / 100.0));
+        if (this.selectedShape != null)
+            this.selectedShape.setFillColor(this.fillColor);
     }
 }

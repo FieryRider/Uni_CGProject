@@ -1,0 +1,30 @@
+Complex 1
+====================================================================================================
+Rectangle rectangle1 = new Rectangle(e.getX(), e.getY(), 0, 0);
+Circle circle1 = new Circle(e.getX(), e.getY(), 0);
+ArrayList<SimpleShape> simplShapes = new ArrayList<>();
+simplShapes.add(new SimpleShape(rectangle1, ShapeType.RECTANGLE, strokeColor, fillColor, lineWidth));
+simplShapes.add(new SimpleShape(circle1, ShapeType.CIRCLE, strokeColor, fillColor, lineWidth));
+shapes.add(new ComplexShape(simplShapes));
+
+----------------------------------------------------------------------------------------------------
+
+Rectangle rectangle1 = new Rectangle(shapeBoundsBeginLocation.x, shapeBoundsBeginLocation.y,
+		(shapeBoundsEndLocation.x - shapeBoundsBeginLocation.x), (shapeBoundsEndLocation.y - shapeBoundsBeginLocation.y));
+
+
+double xDiameter1 = shapeBoundsEndLocation.x - shapeBoundsBeginLocation.x;
+double yDiameter1 = shapeBoundsEndLocation.y - shapeBoundsBeginLocation.y;
+double radius1 = (xDiameter1 < yDiameter1) ? (xDiameter1 / 2) : (yDiameter1 / 2);
+centerX = shapeBoundsBeginLocation.x + radius1;
+centerY = shapeBoundsBeginLocation.y + radius1;
+
+Circle circle1 = new Circle(centerX, centerY, radius1);
+
+
+ArrayList<SimpleShape> simplShapes = new ArrayList<>();
+simplShapes.add(new SimpleShape(rectangle1, ShapeType.RECTANGLE, strokeColor, fillColor, lineWidth));
+simplShapes.add(new SimpleShape(circle1, ShapeType.CIRCLE, strokeColor, fillColor, lineWidth));
+
+shapes.set((shapes.size() - 1), new ComplexShape(simplShapes));
+break;

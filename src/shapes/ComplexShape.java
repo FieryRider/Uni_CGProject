@@ -19,7 +19,7 @@ public class ComplexShape extends BaseShape implements Serializable {
         }
 
         this.simpleShapes = simpleShapes;
-        complex = true;
+        this.complex = true;
     }
 
     public ArrayList<SimpleShape> getShapes() {

@@ -15,7 +15,7 @@ import java.io.Serializable;
 
 
 public class BaseShape implements Serializable {
-    protected boolean complex;
+    protected boolean complex = false;
     protected boolean partOfGroup = false;
 
     protected transient Color strokeColor;
